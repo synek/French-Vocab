@@ -2,33 +2,32 @@ from Tkinter import *
 import random
 from sys import exit
 
-vocab={}
-
 class askWords:
 
-    
-    def __init__(self, master, word_pool):
-        self.pool = word_pool
+
+    def __init__(self, master):
         self.master = master
+
+        self.vocab = {}
         
         self.question_text = StringVar()
         self.reward_text = StringVar()
         self.streak = 0
         self.tries = 1
         
-        '''Populates the dictionary with words from the text file'''
+        # Populates the dictionary with words from a text file
         with open('vocabulary.txt') as in_file:
             for line in in_file:
                self.eng_word, self.fre_word = line.split(':', 1)
-               self.pool[self.eng_word] = self.fre_word.rstrip('\n')
+               self.vocab[self.eng_word] = self.fre_word.rstrip('\n')
         
-        self.english = random.choice(self.pool.keys())
-        self.french = self.pool[self.english]
+        self.english = random.choice(self.vocab.keys())
+        self.french = self.vocab[self.english]
          
         self.frame = Frame(self.master, width=455, height=150)
         self.frame.pack()
 
-        self.question_text.set("What is the french for " + self.english + "?")
+        self.question_text.set(''.join(("What is the french for ", self.english, " ?")))
         
         self.question = Label(self.master, textvariable=self.question_text)
         self.question.pack()
@@ -38,9 +37,9 @@ class askWords:
         self.entry.pack()
         self.entry.place(x=5, y=50)
         
-        self.gob = Button(self.master, text="Go!", width=8, command=self.go_button)
-        self.gob.pack()
-        self.gob.place(y=47, x=380)
+        self.go_button = Button(self.master, text="Go!", width=8, command=self.go)
+        self.go_button.pack()
+        self.go_button.place(y=47, x=380)
         
         self.reward = Message(self.master, textvariable=self.reward_text, width=200)
         self.reward.pack()
@@ -50,31 +49,31 @@ class askWords:
         self.change_button.pack()
         self.change_button.place(y=119, x=380)
         
-    def go_button(self):
+    def go(self):
         self.ans = self.entry.get()
         if self.ans != self.french and self.tries < 2:
-            self.reward_text.set("Sorry, that's wrong. The first letter of the word is '" + self.french[0] + "'. Try again!")
+            self.reward_text.set(''.join(("Sorry, that's wrong. The first letter of the word is '", self.french[0], "'. Try again!")))
             self.tries += 1
         elif self.ans != self.french and  self.tries < 3:
             self.tries += 1
-            self.reward_text.set("Sorry, wrong again! The first two letters of the word are '" + self.french[0] + "' and '" + self.french[1] + """'. Last try!""")
+            self.reward_text.set(''.join(("Sorry, wrong again! The first two letters of the word are '", self.french[0], "' and '" + self.french[1] + "'. Last try!")))
         elif self.ans == self.french:
             if self.streak < 2:
-                self.reward_text.set("You got it! And it only took you " + str(self.tries) + " tries!")
+                self.reward_text.set(''.join(("You got it! And it only took you ", str(self.tries), " tries!")))
             else:
-                self.reward_text.set("You got it! And it only took you " + str(self.tries) + " tries! \nYou're on a " + str(self.streak) + " word streak!")
-            self.english = random.choice(self.pool.keys())
-            self.french = self.pool[self.english]
+                self.reward_text.set(''.join(("You got it! And it only took you ", str(self.tries), " tries! \nYou're on a ", str(self.streak), " word streak!")))
+            self.english = random.choice(self.vocab.keys())
+            self.french = self.vocab[self.english]
 
-            self.question_text.set("What is the french for " + self.english + "?")
+            self.question_text.set(''.join(("What is the french for ", self.english, " ?")))
             self.tries = 1
             self.streak += 1
         elif self.tries == 3:
-            self.reward_text.set("You guessed wrong too many times. The word was '" + self.french + "'.")
-            self.english = random.choice(self.pool.keys())
-            self.french = self.pool[self.english]
+            self.reward_text.set(''.join(("You guessed wrong too many times. The word was '", self.french, "'.")))
+            self.english = random.choice(self.vocab.keys())
+            self.french = self.vocab[self.english]
 
-            self.question_text.set("What is the french for " + self.english + "?")
+            self.question_text.set(''.join(("What is the french for ", self.english, " ?")))
             self.tries = 1
             self.streak = 0
 
@@ -84,7 +83,7 @@ class askWords:
         self.e = self.eng_entry.get()
         self.f = self.fre_entry.get()
         with open('vocabulary.txt', 'a') as self.vocab_file:
-            self.vocab_file.write(self.e + ":" + self.f + "\n")
+            self.vocab_file.write(''.join((self.e, ":", self.f, "\n")))
 
     def add_words(self):
         self.top = Toplevel(width = 450, height = 110)
@@ -116,12 +115,10 @@ class askWords:
 
     def exit_prog(self):
         self.top.destroy()
-        
-        
 
 
 if __name__ == '__main__':
     root = Tk()
     root.title('Vocabulary')
-    app = askWords(root, vocab)
+    app = askWords(root)
     root.mainloop()
